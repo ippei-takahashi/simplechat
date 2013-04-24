@@ -5,10 +5,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
@@ -36,18 +38,6 @@ import com.example.simplechat.utils.CommonUtils;
  */
 public class LoginActivity extends Activity {
 	/**
-	 * A dummy authentication store containing known user names and passwords.
-	 * TODO: remove after connecting to a real authentication system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
-
-	/**
-	 * The default email to populate the email field with.
-	 */
-	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
-
-	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
 	private UserLoginTask mAuthTask = null;
@@ -70,7 +60,6 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 
 		// Set up the login form.
-		mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
 		mEmailView = (EditText) findViewById(R.id.email);
 		mEmailView.setText(mEmail);
 
@@ -128,17 +117,6 @@ public class LoginActivity extends Activity {
 
 		boolean cancel = false;
 		View focusView = null;
-
-		// Check for a valid password.
-		if (TextUtils.isEmpty(mPassword)) {
-			mPasswordView.setError(getString(R.string.error_field_required));
-			focusView = mPasswordView;
-			cancel = true;
-		} else if (mPassword.length() < 4) {
-			mPasswordView.setError(getString(R.string.error_invalid_password));
-			focusView = mPasswordView;
-			cancel = true;
-		}
 
 		// Check for a valid email address.
 		if (TextUtils.isEmpty(mEmail)) {
@@ -216,13 +194,13 @@ public class LoginActivity extends Activity {
 
 			try {
 				/* ƒƒOƒCƒ“ */
-				HttpPost post = new HttpPost(CommonUtils.Login_URL);
+				HttpPost post = new HttpPost(CommonUtils.Login_URL);			
 				List<NameValuePair> params = new ArrayList<NameValuePair>();
 				params.add(new BasicNameValuePair("email", mEmail));
 				params.add(new BasicNameValuePair("password", mPassword));
 				post.setEntity(new UrlEncodedFormEntity(params));
 
-				DefaultHttpClient client = new DefaultHttpClient();
+				DefaultHttpClient client = new DefaultHttpClient();					
 				HttpResponse response = client.execute(post);
 				BufferedReader rd = new BufferedReader(new InputStreamReader(
 						response.getEntity().getContent()));
@@ -233,6 +211,10 @@ public class LoginActivity extends Activity {
 					result += line;
 				} 
 				JSONObject json = new JSONObject (result);
+			    result = json.getString("result");
+			    if(result == null || result.equals("fail")){
+			    	return false;
+			    }
 			} catch (Exception e) {
 				return false;
 			}

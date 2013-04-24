@@ -45,7 +45,7 @@ public final class R {
     public static final class string {
         public static final int action_forgot_password=0x7f050008;
         public static final int action_settings=0x7f050001;
-        public static final int action_sign_in_register=0x7f050006;
+        public static final int action_sign_in=0x7f050006;
         public static final int action_sign_in_short=0x7f050007;
         public static final int app_name=0x7f050000;
         public static final int error_field_required=0x7f05000d;
