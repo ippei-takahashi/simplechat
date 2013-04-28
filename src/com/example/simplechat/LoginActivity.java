@@ -5,12 +5,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
@@ -30,7 +28,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.simplechat.api.RemoteApi;
 import com.example.simplechat.utils.CommonUtils;
+import com.google.api.services.loginEndpoint.LoginEndpoint;
+import com.google.api.services.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
+import com.google.api.services.loginEndpoint.model.LoginResultV1Dto;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -52,6 +54,9 @@ public class LoginActivity extends Activity {
 	private View mLoginFormView;
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
+
+	private static String SUCCESS = "success";
+	private static String FAIL = "fail";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -193,33 +198,43 @@ public class LoginActivity extends Activity {
 		protected Boolean doInBackground(Void... args) {
 
 			try {
-				/* ÉçÉOÉCÉì */
-				HttpPost post = new HttpPost(CommonUtils.Login_URL);			
-				List<NameValuePair> params = new ArrayList<NameValuePair>();
-				params.add(new BasicNameValuePair("email", mEmail));
-				params.add(new BasicNameValuePair("password", mPassword));
-				post.setEntity(new UrlEncodedFormEntity(params));
+				LoginEndpoint endpoint = RemoteApi.getLoginEndpoint();
+				Login login = endpoint.loginV1Endpoint().login(mEmail,
+						mPassword);
+				LoginResultV1Dto result = login.execute();
 
-				DefaultHttpClient client = new DefaultHttpClient();					
-				HttpResponse response = client.execute(post);
-				BufferedReader rd = new BufferedReader(new InputStreamReader(
-						response.getEntity().getContent()));
+				if (SUCCESS.equals(result.getResult())) {
+					return true;
+				} else {
+					return false;
+				}
 
-				String result = "";
-				String line = "";
-				while ((line = rd.readLine()) != null) {
-					result += line;
-				} 
-				JSONObject json = new JSONObject (result);
-			    result = json.getString("result");
-			    if(result == null || result.equals("fail")){
-			    	return false;
-			    }
+				/* Login with json */
+				// HttpPost post = new HttpPost(CommonUtils.Login_URL);
+				// List<NameValuePair> params = new ArrayList<NameValuePair>();
+				// params.add(new BasicNameValuePair("email", mEmail));
+				// params.add(new BasicNameValuePair("password", mPassword));
+				// post.setEntity(new UrlEncodedFormEntity(params));
+				//
+				// DefaultHttpClient client = new DefaultHttpClient();
+				// HttpResponse response = client.execute(post);
+				// BufferedReader rd = new BufferedReader(new InputStreamReader(
+				// response.getEntity().getContent()));
+				//
+				// String result = "";
+				// String line = "";
+				// while ((line = rd.readLine()) != null) {
+				// result += line;
+				// }
+				// JSONObject json = new JSONObject (result);
+				// result = json.getString("result");
+				// if(result == null || result.equals("fail")){
+				// return false;
+				// }
+
 			} catch (Exception e) {
 				return false;
 			}
-
-			return true;
 		}
 
 		@Override
